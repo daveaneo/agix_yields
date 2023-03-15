@@ -91,20 +91,20 @@ def get_my_returns(my_wallet):
         total_eth += reserves[0]*my_lp/total_lp/(10**decimals["eth"])
 
     print(f'Total Assets')
-    print(f'  ETH: {total_eth}')
-    print(f'  AGIX: {total_agix}')
+    print(f'  ETH: {round(total_eth, 2):,}')
+    print(f'  AGIX: {round(total_agix, 2):,}')
 
     print(f'Prices')
-    print(f'  ETH: ${round(eth_price, 2)}')
-    print(f'  AGIX: ${round(agix_price, 2)}')
+    print(f'  ETH: ${round(eth_price, 2):,}')
+    print(f'  AGIX: ${round(agix_price, 2):,}')
 
     print(f'Asset Value')
-    print(f'  ETH: ${round(total_eth*eth_price, 2)}')
-    print(f'  AGIX: ${round(total_agix*agix_price, 2)}')
-    print(f'  Combined: ${round(total_eth*eth_price+total_agix*agix_price, 2)}')
+    print(f'  ETH: ${round(total_eth*eth_price, 2):,}')
+    print(f'  AGIX: ${round(total_agix*agix_price, 2):,}')
+    print(f'  Combined: ${round(total_eth*eth_price+total_agix*agix_price, 2):,}')
 
     print(f'Percent Of Liquidity Pool')
-    print(f'  ETH-AGIX: {round(my_lp/total_lp*100, 2)}%')
+    print(f'  ETH-AGIX: {round(my_lp/total_lp*100, 2):,} %')
 
 
 
