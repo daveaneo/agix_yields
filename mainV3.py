@@ -103,7 +103,6 @@ class TokenYield:
         bal = token_contract.functions.balanceOf(WALLET_ADDRESS).call()
         print(f'wallet balance: {bal}')
 
-
     def get_bonded(self) -> None:
         """
         Fetches and returns bonded data.
@@ -122,50 +121,39 @@ class TokenYield:
         """
         Fetches and returns yield data.
         """
-
-        # Calculate Contributions from LPs and yields
-        # make into separate function
-        # Set total tokens for each in lp
+        # Initialize values to zero before iterating over list
         total_token = 0
         total_paired_token = 0
         my_token_data = dict()
 
         for lp_dict in self.liquidity_pool_info_list:
-            # (liquidity_pool_address, yield_contract_address, special_number, paired_token_symbol) = lp_dict.values()
             liquidity_pool_address = lp_dict.get("liquidityPoolAddress")
             yield_contract_address = lp_dict.get("liquidityTokenStakingAddress")
-            special_number = lp_dict.get("liquidityTokenStakingNumber")
+            special_number = int(lp_dict.get("liquidityTokenStakingNumber")) if lp_dict.get("liquidityTokenStakingNumber") else None
             paired_token_symbol = lp_dict.get("pairedTokenSymbol")
-
-            special_number = int(special_number)
 
             if not liquidity_pool_address:
                 continue
 
             liquidity_pool_contract = self.web3.eth.contract(address=liquidity_pool_address, abi=self.PAIR_ABI)
 
-            # # used for getting prices (in terms of each other)
-            # reserves = liquidity_pool_contract.functions.getReserves().call()
-            # token_zero = liquidity_pool_contract.functions.token0().call()
-
             # todo this can be more generic
             paired_decimals = 18 if paired_token_symbol == "ETH" else 6
-
-            # yield vault liquidity
-            my_lp = 0
 
             # Uniswap Pair
             reserves = liquidity_pool_contract.functions.getReserves().call()
             token_zero = liquidity_pool_contract.functions.token0().call()
 
-            my_lp += liquidity_pool_contract.functions.balanceOf(WALLET_ADDRESS).call()
+            # get liquidity
+            my_lp = liquidity_pool_contract.functions.balanceOf(WALLET_ADDRESS).call()
             total_lp = liquidity_pool_contract.functions.totalSupply().call()
 
+            # if ther eis a yield vault, get amount of lp tokens staked there
             if yield_contract_address:
                 yield_contract = self.web3.eth.contract(address=yield_contract_address, abi=self.YIELD_VAULT_ABI)
                 yield_lp, _ = yield_contract.functions.userInfo(special_number, WALLET_ADDRESS).call()
-                print(yield_lp)
-                print(total_lp)
+                # print(yield_lp)
+                # print(total_lp)
                 my_lp += yield_lp
 
             if token_zero == self.token_address:
@@ -179,14 +167,8 @@ class TokenYield:
             my_token_data[self.symbol] = my_token_data.get(self.symbol, 0) + total_token
             my_token_data[paired_token_symbol] = my_token_data.get(paired_token_symbol, 0) + total_paired_token
 
-            print(f'fraction of pool: {my_lp / total_lp * 100}&')
+            print(f'fraction of pool: {my_lp / total_lp * 100:.2f}%')
 
-            # todo -- add in wallet balance -- if have not already
-            # todo -- add in bonded, unbonded staking
-            # todo -- return the data in an informative way using a dictionary.
-            # consider what is being returned
-
-        # token_info["data"] = token_data
         return my_token_data
 
     def get_all(self) -> None:
@@ -208,6 +190,11 @@ class TokenYield:
             "current_datetime": datetime.now().isoformat(),
             "data": self.data
         }
+
+
+# # used for getting prices (in terms of each other)
+# reserves = liquidity_pool_contract.functions.getReserves().call()
+# token_zero = liquidity_pool_contract.functions.token0().call()
 
 
 def load_token_data(json_file: str = 'tokenInfo.json') -> Dict:
