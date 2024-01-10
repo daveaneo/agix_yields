@@ -46,9 +46,9 @@ def fetch_token_data(token_info: Dict) -> Dict:
     bonded_staking_address = token_info.get("bondedStakingAddress")
     unbonded_staking_address = token_info.get("unbondedStakingAddress")
 
-    liquidity_pool_info_liist = token_info.get("liquidityPool", [{}])
+    liquidity_pool_info_list = token_info.get("liquidityPool", [{}])
 
-    if not (bonded_staking_address or unbonded_staking_address or len(liquidity_pool_info_liist)):
+    if not (bonded_staking_address or unbonded_staking_address or len(liquidity_pool_info_list)):
         return {}
 
     # Setup Web3 connection
@@ -66,13 +66,14 @@ def fetch_token_data(token_info: Dict) -> Dict:
     # Fetching token data
     token_contract = web3.eth.contract(address=token_address, abi=PAIR_ABI)
 
+# Calculate Contributions from LPs and yields
+    # make into separate function
     # Set total tokens for each in lp
     total_token = 0
     total_paired_token = 0
-
     my_token_data = dict()
 
-    for lp_dict in liquidity_pool_info_liist:
+    for lp_dict in liquidity_pool_info_list:
         (liquidity_pool_address, yield_contract_address, special_number, paired_token_symbol) = lp_dict.values()
         special_number = int(special_number)
         # print(f'\n########################################')
