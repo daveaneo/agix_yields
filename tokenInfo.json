@@ -6,15 +6,29 @@
         "symbol": "RJV",
         "blockchain": "Ethereum",
         "tokenAddress": "0x02c3296C6eb50249f290AE596F2bE9454bFfadaB",
-        "bondedStakingAddress": "",
-        "unbondedStakingAddress": "",
+        "bondedStaking": {
+            "contractAddress": "",
+            "staked": 0,
+            "pendingRewards": 0
+        },
+        "unbondedStaking": {
+            "contractAddress": "",
+            "staked": 0,
+            "pendingRewards": 0
+        },
         "liquidityPool": [
             {
                 "liquidityPoolAddress": "0x30e3270FD3d1589672e8da2F15c7076323C9Aa10",
-                "yieldContract": "0x5caDCF74A14a6aa67e95E418625b82831b241b58",
-                "liquidityTokenStakingNumber": "1",
-                "pairedTokenSymbol": "ETH"
+                "liquidityTokenStakingAddress": "0x5caDCF74A14a6aa67e95E418625b82831b241b58",
+                "liquidityTokenStakingNumber": 1,
+                "pairedTokenSymbol": "ETH",
+                "liquidity": 0,
+                "mainAssetAmountNow": 0,
+                "pairedAssetAmountNow": 0,
+                "pendingRewardsFromYieldVault": 0
             }
-        ]
+        ],
+        "inWallet": 0,
+        "totalAssetsOwned": []
     }
 ]

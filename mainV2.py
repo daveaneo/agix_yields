@@ -15,6 +15,9 @@ def get_web3_given_chain_info(blockchain: str) -> Web3:
     if blockchain == "Ethereum":
         rpc_url = os.getenv('ETH_RPC')
         # chain_id = int(os.getenv('CHAIN_ID'))
+    elif blockchain == "Binance":
+        rpc_url = os.getenv('BNB_RPC')
+        # chain_id = int(os.getenv('CHAIN_ID'))
     else:
         return None
 
@@ -22,12 +25,13 @@ def get_web3_given_chain_info(blockchain: str) -> Web3:
     web3 = Web3(Web3.HTTPProvider(rpc_url))
     # web3.eth.set_chain_id(chain_id)
 
-    # Set the gas price strategy
-    web3.eth.set_gas_price_strategy(rpc_gas_price_strategy)
+    # Set the gas price strategy -- todo probably not needed since we aren't making state-changing calls
+    # web3.eth.set_gas_price_strategy(rpc_gas_price_strategy)
 
     return web3
 
 
+# todo -- consider making a class
 def fetch_token_data(token_info: Dict) -> Dict:
     """
     Fetches token data based on the input dictionary containing token information.
