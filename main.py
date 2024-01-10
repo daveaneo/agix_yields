@@ -4,6 +4,28 @@ from web3 import Web3
 import json
 from web3.gas_strategies.rpc import rpc_gas_price_strategy
 
+# todo -- create a simple template so we can systematically load in the values using one function.
+# we'll need generic function that takes in a name, blockchain, and wallet address
+# a function that retrieves the contract addresses given name and blockchain
+# a main function to display everything
+# A data format to return everything. It should breatk it all down like this:
+# Value in USD
+# Totals
+#   Unbonded Vault
+#     Current:
+#     Rewards Pending:
+#   Bonded Vault
+#     Current:
+#     Rewards Pending:
+#   Yield Vault
+#     Current:
+#     Rewards Pending:
+#   Wallet
+#   LP
+#     MainToken:
+#     Paired:
+# ...
+
 # load data from env
 load_dotenv()
 PRIVATE_KEY = os.getenv('PRIVATE_KEY')
@@ -15,7 +37,12 @@ ETH_USDT_CONTRACT_ADDRESS= os.getenv('ETH_USDT_CONTRACT_ADDRESS')
 AGIX_ETH_CONTRACT_ADDRESS= os.getenv('AGIX_ETH_CONTRACT_ADDRESS')
 RJV_ETH_CONTRACT_ADDRESS= os.getenv('RJV_ETH_CONTRACT_ADDRESS')
 
-YIELD_VAULT_CONTRACT_ADDRESS= os.getenv('YIELD_VAULT_CONTRACT_ADDRESS')
+ETHEREUM_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS= os.getenv('ETHEREUM_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS')
+REJUVE_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS= os.getenv('REJUVE_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS')
+
+print(ETHEREUM_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS)
+print(REJUVE_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS)
+
 
 AGIX_CONTRACT_ADDRESS= os.getenv('AGIX_CONTRACT_ADDRESS')
 USDT_CONTRACT_ADDRESS= os.getenv('USDT_CONTRACT_ADDRESS')
@@ -45,7 +72,8 @@ eth_usdt_pair_contract = my_provider.eth.contract(address=ETH_USDT_CONTRACT_ADDR
 agix_eth_pair_contract = my_provider.eth.contract(address=AGIX_ETH_CONTRACT_ADDRESS, abi=PAIR_ABI)
 rjv_eth_pair_contract = my_provider.eth.contract(address=RJV_ETH_CONTRACT_ADDRESS, abi=PAIR_ABI)
 
-yield_vault_contract = my_provider.eth.contract(address=YIELD_VAULT_CONTRACT_ADDRESS, abi=YIELD_VAULT_ABI)
+ethereum_liquidity_yield_vault_contract = my_provider.eth.contract(address=ETHEREUM_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS, abi=YIELD_VAULT_ABI)
+rejuve_liquidity_yield_vault_contract = my_provider.eth.contract(address=REJUVE_LIQUIDITY_YIELD_VAULT_CONTRACT_ADDRESS, abi=YIELD_VAULT_ABI)
 
 
 decimals = {
@@ -84,7 +112,7 @@ def get_my_agix_returns(my_wallet):
     total_agix = 0
     total_eth = 0
     # AGIX Vault
-    my_lp, _ = yield_vault_contract.functions.userInfo(2, my_wallet).call()
+    my_lp, _ = ethereum_liquidity_yield_vault_contract.functions.userInfo(2, my_wallet).call()
 
     # Uniswap Pair
     reserves = agix_eth_pair_contract.functions.getReserves().call()
@@ -106,7 +134,7 @@ def get_my_agix_returns(my_wallet):
 
     print(f'Prices')
     print(f'  ETH: ${round(eth_price, 2):,}')
-    print(f'  AGIX: ${round(agix_price, 2):,}')
+    print(f'  AGIX: ${round(agix_price, 4):,}')
 
     print(f'Asset Value')
     print(f'  ETH: ${round(total_eth*eth_price, 2):,}')
@@ -147,13 +175,15 @@ def get_my_rjv_returns(my_wallet):
     total_rjv = 0
     total_eth = 0
     # AGIX Vault
-    # my_lp, _ = yield_vault_contract.functions.userInfo(2, my_wallet).call()
+    # my_lp, _ = ethereum_liquidity_yield_vault_contract.functions.userInfo(2, my_wallet).call()
 
     # Uniswap Pair
     reserves = rjv_eth_pair_contract.functions.getReserves().call()
     token_zero = rjv_eth_pair_contract.functions.token0().call()
 
-    my_lp = rjv_eth_pair_contract.functions.balanceOf(my_wallet).call()
+    my_lp, _ = rejuve_liquidity_yield_vault_contract.functions.userInfo(1, my_wallet).call()
+
+    my_lp += rjv_eth_pair_contract.functions.balanceOf(my_wallet).call()
     total_lp = rjv_eth_pair_contract.functions.totalSupply().call()
 
     if token_zero == RJV_CONTRACT_ADDRESS:
@@ -169,7 +199,7 @@ def get_my_rjv_returns(my_wallet):
 
     print(f'Prices')
     print(f'  ETH: ${round(eth_price, 2):,}')
-    print(f'  RJV: ${round(rjv_price, 2):,}')
+    print(f'  RJV: ${round(rjv_price, 4):,}')
 
     print(f'Asset Value')
     print(f'  ETH: ${round(total_eth*eth_price, 2):,}')
