@@ -43,7 +43,7 @@
     },
     {
         "name": "COGITO",
-        "decimals": 18,
+        "decimals": 6,
         "symbol": "CGV",
         "blockchain": "Binance",
         "tokenAddress": "0x1bDaF9ddD7658d8049391971d1fd48c0484F66EC",
