@@ -185,11 +185,16 @@ class TokenYield:
         if not self.unbonded_staking_address:
             return
         try:
+
+            # todo -- we can't hardcode the userinfo as it varies for each one.
+
             # Implement logic to fetch unbonded data
             unbonded_contract = self.web3.eth.contract(address=self.unbonded_staking_address, abi=self.UNBONDED_STAKING_ABI)
             amount, user_debt = unbonded_contract.functions.userInfo(0, WALLET_ADDRESS).call()
             self.token_info['unbondedStaking']['staked'] = amount / 10 ** self.decimals
             # todo -- understand the logic for getting the rewards
+
+            print(f"{self.symbol}, in unbonded staking, has tokens: {self.token_info['unbondedStaking']['staked']}")
         except Exception as e:
             raise Exception(f'Error in get_unbonded: {e}')
 
