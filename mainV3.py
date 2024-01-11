@@ -63,9 +63,9 @@ class TokenYield:
         self.symbol = self.token_info.get("symbol")
         self.decimals = self.token_info.get("decimals")
         self.blockchain = self.token_info.get('blockchain')
-        self.token_address = self.token_info.get("tokenAddress")
-        self.bonded_staking_address = self.token_info.get("bondedStakingAddress")
-        self.unbonded_staking_address = self.token_info.get("unbondedStakingAddress")
+        self.token_address = self.checksum_address(self.token_info.get("tokenAddress"))
+        self.bonded_staking_address = self.checksum_address(self.token_info.get("bondedStakingAddress"))
+        self.unbonded_staking_address = self.checksum_address(self.token_info.get("unbondedStakingAddress"))
         self.liquidity_pool_info_list = self.token_info.get("liquidityPool", [{}])
         self.in_wallet = self.token_info.get("inWallet")
 
@@ -135,8 +135,8 @@ class TokenYield:
         my_token_data = dict()
 
         for lp_dict in self.liquidity_pool_info_list:
-            liquidity_pool_address = lp_dict.get("liquidityPoolAddress")
-            yield_contract_address = lp_dict.get("liquidityTokenStakingAddress")
+            liquidity_pool_address = self.checksum_address(lp_dict.get("liquidityPoolAddress"))
+            yield_contract_address = self.checksum_address(lp_dict.get("liquidityTokenStakingAddress"))
             special_number = int(lp_dict.get("liquidityTokenStakingNumber")) if lp_dict.get("liquidityTokenStakingNumber") else None
             paired_token_symbol = lp_dict.get("pairedTokenSymbol")
 
@@ -221,6 +221,19 @@ class TokenYield:
 
         self.token_info['totalAssetsOwned'] = totals
 
+    # @staticmethod
+    # def checksum_address(address: str) -> str:
+    def checksum_address(self, address: str) -> str:
+        """
+        Converts an Ethereum address to its checksummed version.
+
+        Args:
+        address (str): The Ethereum address to checksum.
+
+        Returns:
+        str: The checksummed Ethereum address.
+        """
+        return self.web3.utils.toChecksumAddress(address)
 
 
 # # used for getting prices (in terms of each other)
