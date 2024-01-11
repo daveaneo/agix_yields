@@ -16,9 +16,10 @@ class TokenPortfolio:
     def __init__(self, token_data_list: list):
         self.tokens = []
         # self.tokens = [TokenYield(token_data) for token_data in token_data_list]
-        self.load_ABIs()  # Load ABIs once for all tokens
+        # self.load_ABIs()  # Load ABIs once for all tokens
         self.load_tokens_async(token_data_list)
-        print(f'here are the tokens: {self.tokens}')
+        self.sum_all_tokens()
+        self.dust_threshold = 0.0001
 
     def load_tokens_async(self, token_data_list: list):
         # Asynchronously create TokenYield instances
@@ -31,17 +32,27 @@ class TokenPortfolio:
                 except Exception as exc:
                     print(f'Error creating TokenYield instance error: {exc}')
 
-    def load_ABIs(self):
-        # Similar implementation as in TokenYield.load_ABIs
-        pass
-
     def print_all_tokens(self):
         for token_yield in self.tokens:
             token_yield.print_data()
 
+    def print_holdings(self):
+        print(f'\nAll tokens in portfolio:')
+        for k, v in self.all_tokens.items():
+            if v > self.dust_threshold:
+                print(f'{k}: {v}')
+
     def sum_all_tokens(self):
         # Logic to sum all tokens
-        pass
+        all_tokens = dict()
+        for token in self.tokens:
+            my_sum = token.get_all_assets()
+            for k,v in my_sum.items():
+                all_tokens[k] = all_tokens.get(k, 0) + v
+
+        self.all_tokens = all_tokens
+
+
 
     def get_net_value(self):
         # Logic to calculate net value
@@ -68,8 +79,7 @@ class TokenYield:
         self.load_ABIs() # could be done in parent class
         self.fetch_token_data()
         self.calculate_totals()
-        self.print_data()
-
+        # self.print_data()
 
     def fetch_token_data(self) -> Dict[str, Any]:
         """
@@ -79,13 +89,13 @@ class TokenYield:
         Dict[str, Any]: A dictionary with fetched and calculated token data.
         """
 
-        if not (
-                self.web3 or
+        if not self.web3 and \
+                (
                 self.bonded_staking_address or
                 self.unbonded_staking_address or
                 len(self.liquidity_pool_info_list)
         ):
-            return {}
+            raise Exception("Missing web3 or other details")
 
         self.get_wallet_balance()
         self.get_yield()
@@ -97,19 +107,21 @@ class TokenYield:
 
 
     def decompress_token_info(self) -> None:
-        bonded_staking_address = self.token_info.get("bondedStaking", {}).get("contractAddress", None)
-        unbonded_staking_address = self.token_info.get("unbondedStaking", {}).get("contractAddress", None)
+        try:
+            bonded_staking_address = self.token_info.get("bondedStaking", {}).get("contractAddress", None)
+            unbonded_staking_address = self.token_info.get("unbondedStaking", {}).get("contractAddress", None)
 
-        self.name = self.token_info.get("name")
-        self.symbol = self.token_info.get("symbol")
-        self.decimals = self.token_info.get("decimals")
-        self.blockchain = self.token_info.get('blockchain')
-        self.token_address = self.checksum_address(self.token_info.get("tokenAddress"))
-        self.bonded_staking_address = self.checksum_address(bonded_staking_address)
-        self.unbonded_staking_address = self.checksum_address(unbonded_staking_address)
-        self.liquidity_pool_info_list = self.token_info.get("liquidityPool", [{}])
-        self.in_wallet = self.token_info.get("inWallet")
-
+            self.name = self.token_info.get("name")
+            self.symbol = self.token_info.get("symbol")
+            self.decimals = self.token_info.get("decimals")
+            self.blockchain = self.token_info.get('blockchain')
+            self.token_address = self.checksum_address(self.token_info.get("tokenAddress"))
+            self.bonded_staking_address = self.checksum_address(bonded_staking_address)
+            self.unbonded_staking_address = self.checksum_address(unbonded_staking_address)
+            self.liquidity_pool_info_list = self.token_info.get("liquidityPool", [{}])
+            self.in_wallet = self.token_info.get("inWallet")
+        except Exception as e:
+            raise Exception(f'Error. Failed in decomppress_token_info: {e}')
 
     def load_web3(self) -> None:
         blockchain = self.token_info.get("blockchain")
@@ -119,64 +131,75 @@ class TokenYield:
         elif blockchain == "Binance":
             rpc_url = os.getenv('BNB_RPC')
         else:
-            print(f'unable to find rpc for blockchain: {blockchain}')
-            return
+            raise Exception("Unable to load web3")
 
         # Setup Web3 connection
         self.web3 = Web3(Web3.HTTPProvider(rpc_url))
 
-        if not self.web3:
-            print(f'unsupported blockchain')
-
     def load_ABIs(self) -> None:
-        # Load ABI files (assuming these are stored in a directory named 'ABI')
-        with open('ABI/pair.json', 'r') as file:
-            self.PAIR_ABI = json.load(file)
-        with open('ABI/yieldVault.json', 'r') as file:
-            self.YIELD_VAULT_ABI = json.load(file)
-        with open('ABI/ERC20.json', 'r') as file:
-            self.ERC20_ABI = json.load(file)
-        with open('ABI/unbondedStaking.json', 'r') as file:
-            self.UNBONDED_STAKING_ABI = json.load(file)
-
+        try:
+            # Load ABI files (assuming these are stored in a directory named 'ABI')
+            with open('ABI/pair.json', 'r') as file:
+                self.PAIR_ABI = json.load(file)
+            with open('ABI/yieldVault.json', 'r') as file:
+                self.YIELD_VAULT_ABI = json.load(file)
+            with open('ABI/ERC20.json', 'r') as file:
+                self.ERC20_ABI = json.load(file)
+            with open('ABI/unbondedStaking.json', 'r') as file:
+                self.UNBONDED_STAKING_ABI = json.load(file)
+        except Exception as e:
+            raise Exception(f'Error in load_ABIs: {e}')
 
     def print_data(self) -> None:
         """
         Prints the token data in a formatted manner.
         """
-        print(f'... printing {self.symbol} data ...')
-        print(json.dumps(self.token_info, indent=4))
+        print(f'\n... printing {self.symbol} data ...')
+        # print(json.dumps(self.token_info, indent=4))
+        for k,v in self.token_info.get('totalAssetsOwned', {}).items():
+            print(f'{k}: {v}')
 
     def get_wallet_balance(self) -> None:
         """
         Fetches and returns bonded data.
         """
-        token_contract = self.web3.eth.contract(address=self.token_address, abi=self.ERC20_ABI)
-        bal = token_contract.functions.balanceOf(WALLET_ADDRESS).call() / 10**token_contract.functions.decimals().call()
+        try:
+            token_contract = self.web3.eth.contract(address=self.token_address, abi=self.ERC20_ABI)
+            bal = token_contract.functions.balanceOf(WALLET_ADDRESS).call() / 10**token_contract.functions.decimals().call()
+        except Exception as e:
+            raise Exception(f'Error in get_wallet_balance: {e}')
 
     def get_bonded(self) -> None:
         """
         Fetches and returns bonded data.
         """
         # Implement logic to fetch bonded data
-        return
+        if not self.bonded_staking_address:
+            return
+        pass
 
     def get_unbonded(self) -> None:
         """
         Fetches and returns unbonded data.
         """
-        # Implement logic to fetch unbonded data
-        unbonded_contract = self.web3.eth.contract(address=self.unbonded_staking_address, abi=self.UNBONDED_STAKING_ABI)
-        amount, user_debt = unbonded_contract.functions.userInfo(0, WALLET_ADDRESS).call()
-        self.token_info['unbondedStaking']['staked'] = amount / 10 ** self.decimals
-        # todo -- understand the logic for getting the rewards
-
-        return
+        if not self.unbonded_staking_address:
+            return
+        try:
+            # Implement logic to fetch unbonded data
+            unbonded_contract = self.web3.eth.contract(address=self.unbonded_staking_address, abi=self.UNBONDED_STAKING_ABI)
+            amount, user_debt = unbonded_contract.functions.userInfo(0, WALLET_ADDRESS).call()
+            self.token_info['unbondedStaking']['staked'] = amount / 10 ** self.decimals
+            # todo -- understand the logic for getting the rewards
+        except Exception as e:
+            raise Exception(f'Error in get_unbonded: {e}')
 
     def get_yield(self) -> None:
         """
         Fetches and returns yield data.
         """
+        if self.symbol in self.pair_decimals.keys():
+            return
+
         # Initialize values to zero before iterating over list
         total_token = 0
         total_paired_token = 0
@@ -196,8 +219,6 @@ class TokenYield:
             # todo this can be more generic
             # paired_decimals = 18 if paired_token_symbol == "ETH" else 6
             paired_decimals = self.pair_decimals[paired_token_symbol] # error if does not exist
-
-            print(f'paired decimals for {paired_token_symbol}: {paired_decimals}')
 
             # Uniswap Pair
             reserves = liquidity_pool_contract.functions.getReserves().call()
@@ -232,16 +253,11 @@ class TokenYield:
 
         return my_token_data
 
-    def get_all(self) -> None:
+    def get_all_assets(self) -> Dict:
         """
         Calls all data-fetching methods and aggregates the results.
         """
-        print(f'get_all called. We should remove this function in the future.')
-        return {
-            "bonded": self.get_bonded(),
-            "unbonded": self.get_unbonded(),
-            "yield": self.get_yield()
-        }
+        return self.token_info.get('totalAssetsOwned')
 
     def export(self) -> None:
         """
@@ -311,7 +327,8 @@ def main():
     token_data = load_token_data()  # Load token data from JSON
 
     portfolio = TokenPortfolio(token_data)
-    portfolio.print_all_tokens()
+    # portfolio.print_all_tokens()
+    portfolio.print_holdings()
 
 
 def print_group_data(results: Dict):
