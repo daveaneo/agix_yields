@@ -1,17 +1,19 @@
 [
     {
         "name": "SingularityNet",
-        "decimals": 18,
+        "decimals": 8,
         "symbol": "AGIX",
         "blockchain": "Ethereum",
         "tokenAddress": "0x5B7533812759B45C2B44C19e320ba2cD2681b542",
         "bondedStaking": {
-            "contractAddress": "",
+            "contractAddress": "0x13e1367A455C45Aa736D7Ff2C5656bA2bD05AD46",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xfB85B9Ec50560e302Ab106F1E2857d95132120D0",
+            "userInfoNumber": 9999,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -19,7 +21,7 @@
             {
                 "liquidityPoolAddress": "0x4bB0925FA50Da9B4c8936869433b48e78cCc5c13",
                 "liquidityTokenStakingAddress": "0xfB85B9Ec50560e302Ab106F1E2857d95132120D0",
-                "liquidityTokenStakingNumber": 1,
+                "liquidityTokenStakingNumber": 9999,
                 "pairedTokenSymbol": "USDT",
                 "liquidity": 0,
                 "mainAssetAmountNow": 0,
@@ -29,7 +31,7 @@
             {
                 "liquidityPoolAddress": "0xe45b4a84e0ad24b8617a489d743c52b84b7acebe",
                 "liquidityTokenStakingAddress": "0xfB85B9Ec50560e302Ab106F1E2857d95132120D0",
-                "liquidityTokenStakingNumber": 2,
+                "liquidityTokenStakingNumber": 9999,
                 "pairedTokenSymbol": "ETH",
                 "liquidity": 0,
                 "mainAssetAmountNow": 0,
@@ -49,11 +51,13 @@
         "tokenAddress": "0x993864E43Caa7F7F12953AD6fEb1d1Ca635B875F",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xfB85B9Ec50560e302Ab106F1E2857d95132120D0",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -61,7 +65,7 @@
             {
                 "liquidityPoolAddress": "0x424485f89ea52839fdB30640Eb7DD7E0078E12fb",
                 "liquidityTokenStakingAddress": "0xfB85B9Ec50560e302Ab106F1E2857d95132120D0",
-                "liquidityTokenStakingNumber": 1,
+                "liquidityTokenStakingNumber": 9999,
                 "pairedTokenSymbol": "ETH",
                 "liquidity": 0,
                 "mainAssetAmountNow": 0,
@@ -71,7 +75,7 @@
             {
                 "liquidityPoolAddress": "0x3a925503970d40d36d2329e3846e09fcfc9b6acb",
                 "liquidityTokenStakingAddress": "0xfB85B9Ec50560e302Ab106F1E2857d95132120D0",
-                "liquidityTokenStakingNumber": 1,
+                "liquidityTokenStakingNumber": 9999,
                 "pairedTokenSymbol": "USDT",
                 "liquidity": 0,
                 "mainAssetAmountNow": 0,
@@ -91,17 +95,19 @@
         "tokenAddress": "0x90Ed8F1dc86388f14b64ba8fb4bbd23099f18240",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0x79292c62F593E08d9b850b790b07E7a0903fD007",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "liquidityPool": [
             {
-                "liquidityPoolAddress": "0x43b95976cf0929478bc13332c9cd2d63bf060976",
+                "liquidityPoolAddress": "0x43b95976cF0929478bC13332C9cd2D63Bf060976",
                 "liquidityTokenStakingAddress": "0x79292c62F593E08d9b850b790b07E7a0903fD007",
                 "liquidityTokenStakingNumber": 1,
                 "pairedTokenSymbol": "BNB",
@@ -115,8 +121,6 @@
         "totalAssetsOwned": []
     },
 
-
-
     {
         "name": "ETH",
         "decimals": 18,
@@ -125,17 +129,63 @@
         "tokenAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "liquidityPool": [
             {
-                "liquidityPoolAddress": "",
+                "liquidityPoolAddress": "0x0d4a11d5EEaaC28EC3F61d100daF4d40471f1852",
+                "liquidityTokenStakingAddress": "",
+                "liquidityTokenStakingNumber": 0,
+                "pairedTokenSymbol": "USDT",
+                "liquidity": 0,
+                "mainAssetAmountNow": 0,
+                "pairedAssetAmountNow": 0,
+                "pendingRewardsFromYieldVault": 0
+            },
+            {
+                "liquidityPoolAddress": "0xAEC2A2035fE9F72456593B6BdaC82b0C13953993",
+                "liquidityTokenStakingAddress": "",
+                "liquidityTokenStakingNumber": 0,
+                "pairedTokenSymbol": "BNB",
+                "liquidity": 0,
+                "mainAssetAmountNow": 0,
+                "pairedAssetAmountNow": 0,
+                "pendingRewardsFromYieldVault": 0
+            }
+        ],
+        "inWallet": 0,
+        "totalAssetsOwned": []
+    },
+
+    {
+        "name": "BNB",
+        "decimals": 18,
+        "symbol": "BNB",
+        "blockchain": "Binance",
+        "tokenAddress": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+        "bondedStaking": {
+            "contractAddress": "",
+            "userInfoNumber": 0,
+            "staked": 0,
+            "pendingRewards": 0
+        },
+        "unbondedStaking": {
+            "contractAddress": "",
+            "userInfoNumber": 0,
+            "staked": 0,
+            "pendingRewards": 0
+        },
+        "liquidityPool": [
+            {
+                "liquidityPoolAddress": "0x16b9a82891338f9bA80E2D6970FddA79D1eb0daE",
                 "liquidityTokenStakingAddress": "",
                 "liquidityTokenStakingNumber": 0,
                 "pairedTokenSymbol": "USDT",
@@ -148,6 +198,9 @@
         "inWallet": 0,
         "totalAssetsOwned": []
     },
+
+
+
     {
         "name": "Rejuve",
         "decimals": 6,
@@ -156,11 +209,13 @@
         "tokenAddress": "0x02c3296C6eb50249f290AE596F2bE9454bFfadaB",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0x5caDCF74A14a6aa67e95E418625b82831b241b58",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -188,11 +243,13 @@
         "tokenAddress": "0x602b6c6cce5f95c00603bd07d8fa7ebaf3747d44",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0x738A23A889a6257Ea8678803e4b8Db9605D63B9C",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -221,11 +278,13 @@
         "tokenAddress": "0x73fBD93bFDa83B111DdC092aa3a4ca77fD30d380",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xCe99861F0244D6478a309e2c2565FDaaAA8b0bFb",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -253,11 +312,13 @@
         "tokenAddress": "0x73fbd93bfda83b111ddc092aa3a4ca77fd30d380",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xD8912300C2b96d9F2fb8f4a9cFea351Ebe2A696E",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -286,11 +347,13 @@
         "tokenAddress": "0xF0d33BeDa4d734C72684b5f9abBEbf715D0a7935",
         "bondedStaking": {
             "contractAddress": "0x502b965d3d51d4fd531e6a1c1fa9bfa50337ba55",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xb267DeaACe0B8c5FcB2bb04801A364e7Af7DA3F4",
+            "userInfoNumber": 1,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -310,14 +373,6 @@
         "totalAssetsOwned": []
     },
 
-
-
-
-
-
-
-
-
     {
         "name": "USDT",
         "decimals": 16,
@@ -326,11 +381,13 @@
         "tokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -346,11 +403,13 @@
         "tokenAddress": "0x1bDaF9ddD7658d8049391971d1fd48c0484F66EC",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xB9892Aed8E49bf167Eb15D269777F6F5850aE450",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -371,17 +430,19 @@
     },
     {
         "name": "Hypercycle",
-        "decimals": 18,
+        "decimals": 6,
         "symbol": "HYPC",
         "blockchain": "Ethereum",
         "tokenAddress": "0xeA7B7DC089c9a4A916B5a7a37617f59fD54e37E4",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0xd1061Ff97c34835B90E3f8080e3AE2e5C8B38f1D",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
@@ -402,17 +463,19 @@
     },
     {
         "name": "Hypercycle",
-        "decimals": 18,
+        "decimals": 6,
         "symbol": "HYPC",
         "blockchain": "Binance",
         "tokenAddress": "0x7881cd2b5724431372f57c50e91611352557a606",
         "bondedStaking": {
             "contractAddress": "",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },
         "unbondedStaking": {
             "contractAddress": "0x158a1d0144D8e5449305435DFaDEe07cd2dC85F4",
+            "userInfoNumber": 0,
             "staked": 0,
             "pendingRewards": 0
         },

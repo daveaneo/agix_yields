@@ -40,7 +40,7 @@ class TokenPortfolio:
         print(f'\nAll tokens in portfolio:')
         for k, v in self.all_tokens.items():
             if v > self.dust_threshold:
-                print(f'{k}: {v}')
+                print(f'{k}: {v:.2f}')
 
     def sum_all_tokens(self):
         # Logic to sum all tokens
@@ -52,11 +52,78 @@ class TokenPortfolio:
 
         self.all_tokens = all_tokens
 
-
-
     def get_net_value(self):
-        # Logic to calculate net value
-        pass
+        def get_val_in_terms_of_pair(liquidity_pool_address, token_yield):
+            x_addr = token_yield.token_info.get('tokenAddress')
+
+            liquidity_pool_address = token_yield.checksum_address(liquidity_pool_address)
+            liquidity_pool_contract = token_yield.web3.eth.contract(address=liquidity_pool_address, abi=token_yield.PAIR_ABI)
+
+            reserves = liquidity_pool_contract.functions.getReserves().call()
+            token_zero = liquidity_pool_contract.functions.token0().call()
+            token_one = liquidity_pool_contract.functions.token1().call()
+
+            decimals_zero = token_yield.web3.eth.contract(address=token_zero, abi=token_yield.ERC20_ABI).functions.decimals().call()
+            decimals_one = token_yield.web3.eth.contract(address=token_one, abi=token_yield.ERC20_ABI).functions.decimals().call()
+
+            rate = reserves[0] * (10 ** decimals_one) / (10 ** decimals_zero) / reserves[1]
+
+            if token_zero == x_addr:
+                return 1/rate
+            else:
+                return rate
+
+
+        # todo -- price in BNB is wrong.?????
+        def get_token_price_in_usdt(symbol: str):
+            if symbol == "USDT":
+                return 1
+
+            token_yield = next(x for x in self.tokens if x.symbol == symbol)
+            info = token_yield.token_info
+            lp = info.get('liquidityPool')
+
+            pool_dictionary = dict({x.get('pairedTokenSymbol'): x.get('liquidityPoolAddress') for x in lp if x.get('pairedTokenSymbol') in ["USDT", "ETH", 'BNB']})
+
+            if symbol in ["RJV", "SOPH"]:
+                print(f'RJV pool:')
+
+                print(pool_dictionary)
+
+                for k,v in pool_dictionary.items():
+                    print(f'{k} -> {v}')
+
+            if 'USDT' in pool_dictionary:
+                return get_val_in_terms_of_pair(pool_dictionary['USDT'], token_yield)
+            elif 'ETH' in pool_dictionary:
+                eth_equiv = get_val_in_terms_of_pair(pool_dictionary['ETH'], token_yield)
+                eth_in_usdt = get_token_price_in_usdt('ETH')
+                print(f'\nsymbol: {symbol} ----      eth_equiv: {eth_equiv}, eth_in_usdt: {eth_in_usdt} ==> price: {eth_equiv*eth_in_usdt}')
+
+                return eth_equiv * eth_in_usdt
+            elif 'BNB' in pool_dictionary:
+                bnb_equiv = get_val_in_terms_of_pair(pool_dictionary['BNB'], token_yield)
+                bnb_in_usdt = get_token_price_in_usdt('BNB')
+                print(f'\nsymbol: {symbol} ----     bnb_equiv: {bnb_equiv}, bnb_in_usdt: {bnb_in_usdt} ==> price: {bnb_equiv*bnb_in_usdt}')
+                return bnb_equiv * bnb_in_usdt
+            else:
+                print(f'pool: {pool_dictionary}')
+                raise Exception(f"Error in get_token_price_in_usdt for symbol {symbol}. Lacking token pair contract.")
+
+
+        eth_price = get_token_price_in_usdt('ETH')
+        bnb_price = get_token_price_in_usdt('BNB')
+
+        print(f'eth: {eth_price}; bnb: {bnb_price}')
+
+        total = 0
+        for symbol, amount in self.all_tokens.items():
+            usdt_equivalent = get_token_price_in_usdt(symbol) * amount
+            print(f'{amount} {symbol} equals ${usdt_equivalent}')
+            total += usdt_equivalent
+        return total
+
+
 
 class TokenYield:
     def __init__(self, token_info: Dict[str, Any]):
@@ -79,7 +146,6 @@ class TokenYield:
         self.load_ABIs() # could be done in parent class
         self.fetch_token_data()
         self.calculate_totals()
-        # self.print_data()
 
     def fetch_token_data(self) -> Dict[str, Any]:
         """
@@ -147,6 +213,11 @@ class TokenYield:
                 self.ERC20_ABI = json.load(file)
             with open('ABI/unbondedStaking.json', 'r') as file:
                 self.UNBONDED_STAKING_ABI = json.load(file)
+            with open('ABI/singularityTokenStake.json', 'r') as file:
+                self.SINGULARITY_TOKEN_STAKE = json.load(file)
+            # with open('ABI/pairBNB.json', 'r') as file:
+            #     self.PAIR_BNB_ABI = json.load(file)
+
         except Exception as e:
             raise Exception(f'Error in load_ABIs: {e}')
 
@@ -165,7 +236,8 @@ class TokenYield:
         """
         try:
             token_contract = self.web3.eth.contract(address=self.token_address, abi=self.ERC20_ABI)
-            bal = token_contract.functions.balanceOf(WALLET_ADDRESS).call() / 10**token_contract.functions.decimals().call()
+            bal = token_contract.functions.balanceOf(WALLET_ADDRESS).call() / 10**self.decimals
+            self.token_info['inWallet'] = bal
         except Exception as e:
             raise Exception(f'Error in get_wallet_balance: {e}')
 
@@ -174,9 +246,21 @@ class TokenYield:
         Fetches and returns bonded data.
         """
         # Implement logic to fetch bonded data
-        if not self.bonded_staking_address:
-            return
-        pass
+        try:
+            if not self.bonded_staking_address:
+                return
+            elif self.symbol == "AGIX":
+                sing_stake = self.web3.eth.contract(address=self.bonded_staking_address, abi=self.SINGULARITY_TOKEN_STAKE)
+                staked = sing_stake.functions.balances(WALLET_ADDRESS).call() / 10**self.decimals
+                pending_rewards = 0 # todo figure out how to get rewards
+            else:
+                staked = 0
+                pending_rewards = 0
+
+            self.token_info['bondedStaking']['staked'] = staked
+            self.token_info['bondedStaking']['pendingRewards'] = pending_rewards
+        except Exception as e:
+            raise Exception(f'Error in get_bonded: {e}')
 
     def get_unbonded(self) -> None:
         """
@@ -190,13 +274,18 @@ class TokenYield:
 
             # Implement logic to fetch unbonded data
             unbonded_contract = self.web3.eth.contract(address=self.unbonded_staking_address, abi=self.UNBONDED_STAKING_ABI)
-            amount, user_debt = unbonded_contract.functions.userInfo(0, WALLET_ADDRESS).call()
+            user_info_number = self.token_info['unbondedStaking']['userInfoNumber']
+            amount, user_debt = unbonded_contract.functions.userInfo(user_info_number, WALLET_ADDRESS).call()
             self.token_info['unbondedStaking']['staked'] = amount / 10 ** self.decimals
             # todo -- understand the logic for getting the rewards
 
-            print(f"{self.symbol}, in unbonded staking, has tokens: {self.token_info['unbondedStaking']['staked']}")
+            # print(f"{self.symbol}, in unbonded staking on {self.blockchain}, has tokens: {self.token_info['unbondedStaking']['staked']}")
         except Exception as e:
             raise Exception(f'Error in get_unbonded: {e}')
+
+    def get_dollar_value(self) -> None:
+        pass
+
 
     def get_yield(self) -> None:
         """
@@ -315,6 +404,8 @@ class TokenYield:
 # token_zero = liquidity_pool_contract.functions.token0().call()
 
 
+
+
 def load_token_data(json_file: str = 'tokenInfo.json') -> Dict:
     """
     Loads token data from a JSON file.
@@ -334,6 +425,8 @@ def main():
     portfolio = TokenPortfolio(token_data)
     # portfolio.print_all_tokens()
     portfolio.print_holdings()
+    net_value = portfolio.get_net_value()
+    print(f'net value: {net_value}')
 
 
 def print_group_data(results: Dict):
