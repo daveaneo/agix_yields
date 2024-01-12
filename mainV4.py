@@ -86,12 +86,17 @@ class TokenPortfolio:
             pool_dictionary = dict({x.get('pairedTokenSymbol'): x.get('liquidityPoolAddress') for x in lp if x.get('pairedTokenSymbol') in ["USDT", "ETH", 'BNB']})
 
             if symbol in ["RJV", "SOPH"]:
-                print(f'RJV pool:')
+                print(f'{symbol} pool dictionary:')
 
+                # print(f'\nlp:')
+                # for k,v in lp.items():
+                #     print(f'{k} -> {v}')
+
+                # print(f'\n\npool dictionary:')
                 print(pool_dictionary)
 
-                for k,v in pool_dictionary.items():
-                    print(f'{k} -> {v}')
+                # for k,v in pool_dictionary.items():
+                #     print(f'{k} -> {v}')
 
             if 'USDT' in pool_dictionary:
                 return get_val_in_terms_of_pair(pool_dictionary['USDT'], token_yield)
